@@ -65,59 +65,7 @@ export default function UploadVideo() {
     }
   };
 
-  const handleUpload = async () => {
-   try {
-    if (!videoFile) {
-      
-      throw new ApplicationError('Por favor, selecione um arquivo de vídeo.');
-      
-    }
-    const totalParts = Math.ceil(videoFile.size / CHUNK_SIZE);
-    
-
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/videos/last-part?file_name=${videoFile.name}`,
-      {
-        headers: {
-          Authorization: `Bearer ${session?.user?.token}`,
-        },
-      }
-    )
-
-    const json = await response.json();
-
-    
-    
-    let nextPart = json.part_number ? json.part_number - 1: 0;
-
-
-    for (let i =  nextPart; i < totalParts; i++) {
-      const start = i * CHUNK_SIZE;
-      const end = Math.min(start + CHUNK_SIZE, videoFile.size);
-      const file = videoFile.slice(start, end);
-
-      try {
-        uploadChunk(file, i+1, totalParts,videoFile.name);
-        setUploadProgress(((i + 1) / totalParts) * 100);
-        if(i+1>=totalParts){
-          ToastManager.success('Upload realizado com sucesso.',3000);
-        }
-      } catch(error) {
-        throw error
-        
-      }
-    }
-   } catch (error) {
-    if(error instanceof ApplicationError){
-      
-      ToastManager.error(error.message,3000);
-    }else{
-
-      ToastManager.error('Erro ao enviar o arquivo. Tente novamente.',3000);
-    }
-   }
-
-    
-  };
+ 
   const handleNewUpload = async () => {
 
   
